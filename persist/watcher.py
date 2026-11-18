@@ -20,9 +20,8 @@ def watch(interval: int = 5) -> None:
         try:
             drives = usb.list_removable()
             current = {_key(d) for d in drives}
-
-            if current - _last_seen:
-                new = current - _last_seen
+            new = current - _last_seen
+            if new:
                 logger.info(f"new usb: {new}")
                 for d in drives:
                     if _key(d) in new:
@@ -30,9 +29,8 @@ def watch(interval: int = 5) -> None:
                             from main import harvest_on_usb
                             harvest_on_usb(d)
                         except Exception as e:
-                            logger.error(f"harvest on {d} failed: {e}")
-
+                            logger.error(f"harvest on {d}: {e}")
             _last_seen = current
         except Exception as e:
-            logger.error(f"watcher error: {e}")
+            logger.error(f"watcher: {e}")
         time.sleep(interval)
