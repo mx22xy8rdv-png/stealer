@@ -25,21 +25,18 @@ def _startup_folder() -> Path:
 
 def install_startup_folder() -> bool:
     try:
+        import pythoncom
+        from win32com.client import Dispatch
+        pythoncom.CoInitialize()
         exe = _exe_path()
         link = _startup_folder() / f"{RUN_VALUE}.lnk"
         if link.exists():
             return True
-        script = (
-            f'$s=(New-Object -ComObject WScript.Shell).CreateShortcut("{link}");'
-            f'$s.TargetPath="{exe}";'
-            f'$s.WindowStyle=7;'
-            f'$s.Save()'
-        )
-        subprocess.run(
-            ["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", script],
-            capture_output=True,
-            timeout=15,
-        )
+        shell = Dispatch("WScript.Shell")
+        sc = shell.CreateShortCut(str(link))
+        sc.Targetpath = str(exe)
+        sc.WindowStyle = 7
+        sc.Save()
         logger.info(f"startup shortcut: {link}")
         return link.exists()
     except Exception as e:
