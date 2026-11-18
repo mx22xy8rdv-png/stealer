@@ -1,0 +1,4 @@
+nuitka>=2.4
+zstandard>=0.22
+pywin32>=306
+pycryptodome>=3.20
